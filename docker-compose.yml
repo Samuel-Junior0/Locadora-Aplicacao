@@ -1,0 +1,42 @@
+name: locadora
+
+services:
+  garnet:
+    image: ghcr.io/microsoft/garnet:latest
+    container_name: locadora-garnet
+    restart: unless-stopped
+
+    command:
+      - --port
+      - "6379"
+      - --bind
+      - 0.0.0.0
+      - --checkpointdir
+      - /data
+      - --recover
+      - --aof
+      - --aof-commit-freq
+      - "0"
+      - --aof-commit-wait
+      - --checkpoint-freq
+      - "300"
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - garnet-data:/data
+
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - "exec 3<>/dev/tcp/127.0.0.1/6379; printf '*1\\r\\n$4\\r\\nPING\\r\\n' >&3; head -c 7 <&3 | grep -q PONG"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  garnet-data:
