@@ -12,6 +12,7 @@ import redis.clients.jedis.Transaction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public final class ClienteRepository {
 
@@ -22,14 +23,8 @@ public final class ClienteRepository {
     }
 
     public Cliente inserir(String nome, String cpf) {
-        long id = jedis.incr(Keys.seqCliente());
         Cliente novo = Cliente.novo(nome, cpf);
-        novo.setId(id);
-
-        String chaveCliente = Keys.cliente(id);
         String chaveCpf = Keys.idxClienteCpf(novo.getCpf());
-        String json = Json.paraJson(novo);
-        String idTexto = String.valueOf(id);
 
         while (true) {
             jedis.watch(chaveCpf);
@@ -38,9 +33,16 @@ public final class ClienteRepository {
                 throw new CpfJaCadastradoException(novo.getCpf());
             }
 
+            long id = jedis.incr(Keys.seqCliente());
+            novo.setId(id);
+            String chaveCliente = Keys.cliente(id);
+            String json = Json.paraJson(novo);
+            String idTexto = String.valueOf(id);
+
             Transaction tx = jedis.multi();
             tx.set(chaveCliente, json);
             tx.set(chaveCpf, idTexto);
+            tx.sadd(Keys.clientesIds(), idTexto);
 
             if (tx.exec() != null) {
                 return novo;
@@ -53,10 +55,6 @@ public final class ClienteRepository {
             throw new IllegalArgumentException("Cliente sem id; use inserir() para um novo registro");
         }
 
-        Cliente atual = buscarPorId(alterado.getId())
-                .orElseThrow(() -> new ClienteNaoEncontradoException(alterado.getId()));
-
-        String cpfAntigo = atual.getCpf();
         String cpfNovo = alterado.getCpf();
         String chaveCliente = Keys.cliente(alterado.getId());
         String chaveCpfNova = Keys.idxClienteCpf(cpfNovo);
@@ -64,7 +62,22 @@ public final class ClienteRepository {
         String idTexto = String.valueOf(alterado.getId());
 
         while (true) {
-            jedis.watch(chaveCpfNova);
+            jedis.watch(chaveCliente, chaveCpfNova);
+            String jsonAtual = jedis.get(chaveCliente);
+            if (jsonAtual == null) {
+                jedis.unwatch();
+                throw new ClienteNaoEncontradoException(alterado.getId());
+            }
+
+            Cliente atual;
+            try {
+                atual = Json.paraObjeto(jsonAtual, Cliente.class);
+            } catch (RuntimeException e) {
+                jedis.unwatch();
+                throw e;
+            }
+            String cpfAntigo = atual.getCpf();
+
             String dono = jedis.get(chaveCpfNova);
             if (dono != null && !dono.equals(idTexto)) {
                 jedis.unwatch();
@@ -97,6 +110,7 @@ public final class ClienteRepository {
             Transaction tx = jedis.multi();
             tx.del(Keys.cliente(id));
             tx.del(Keys.idxClienteCpf(cliente.getCpf()));
+            tx.srem(Keys.clientesIds(), String.valueOf(id));
 
             if (tx.exec() != null) {
                 return true;
@@ -119,15 +133,25 @@ public final class ClienteRepository {
     }
 
     public List<Cliente> listarTodos() {
-        String ultimoId = jedis.get(Keys.seqCliente());
-        if (ultimoId == null) {
+        Set<String> ids = jedis.smembers(Keys.clientesIds());
+        if (ids.isEmpty()) {
             return List.of();
         }
 
+        List<Long> ordenados = ids.stream()
+                .map(Long::parseLong)
+                .sorted()
+                .toList();
+        String[] chaves = ordenados.stream()
+                .map(id -> Keys.cliente(id))
+                .toArray(String[]::new);
+        List<String> jsons = jedis.mget(chaves);
+
         List<Cliente> clientes = new ArrayList<>();
-        long limite = Long.parseLong(ultimoId);
-        for (long id = 1; id <= limite; id++) {
-            buscarPorId(id).ifPresent(clientes::add);
+        for (String json : jsons) {
+            if (json != null) {
+                clientes.add(Json.paraObjeto(json, Cliente.class));
+            }
         }
         return clientes;
     }

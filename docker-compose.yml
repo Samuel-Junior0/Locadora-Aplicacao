@@ -2,7 +2,7 @@ name: locadora
 
 services:
   garnet:
-    image: ghcr.io/microsoft/garnet:latest
+    image: ghcr.io/microsoft/garnet:2.2.5
     container_name: locadora-garnet
     restart: unless-stopped
 
@@ -32,7 +32,7 @@ services:
         - CMD
         - bash
         - -c
-        - "exec 3<>/dev/tcp/127.0.0.1/6379; printf '*1\\r\\n$4\\r\\nPING\\r\\n' >&3; head -c 7 <&3 | grep -q PONG"
+        - "exec 3<>/dev/tcp/127.0.0.1/6379; printf '*1\\r\\n$$4\\r\\nPING\\r\\n' >&3; head -c 7 <&3 | grep -q PONG"
       interval: 5s
       timeout: 3s
       retries: 10

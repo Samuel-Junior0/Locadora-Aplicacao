@@ -16,4 +16,8 @@ public final class Keys {
     public static String idxClienteCpf(String cpf) {
         return "idx:cliente:cpf:" + cpf;
     }
+
+    public static String clientesIds() {
+        return "clientes:ids";
+    }
 }
