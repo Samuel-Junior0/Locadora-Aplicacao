@@ -38,4 +38,32 @@ public final class Keys {
     public static String idxFilmeTitulo(String titulo) {
         return "idx:filme:titulo:" + titulo.trim().toLowerCase(Locale.ROOT);
     }
+
+    public static String idxFilmeDisponivel() {
+        return "idx:filme:disponivel";
+    }
+
+    public static String locacao(long id) {
+        return "locacao:" + id;
+    }
+
+    public static String seqLocacao() {
+        return "seq:locacao";
+    }
+
+    public static String locacoesIds() {
+        return "locacoes:ids";
+    }
+
+    public static String idxLocacaoCliente(long clienteId) {
+        return "idx:locacao:cliente:" + clienteId;
+    }
+
+    public static String idxLocacaoFilme(long filmeId) {
+        return "idx:locacao:filme:" + filmeId;
+    }
+
+    public static String idxLocacaoAberta() {
+        return "idx:locacao:aberta";
+    }
 }

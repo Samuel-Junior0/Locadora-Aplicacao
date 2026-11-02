@@ -54,6 +54,11 @@ public class FilmeRepository extends BaseRepository<Filme>{
     @Override
     protected void gravarIndices(Transaction tx, Filme nova, Filme atual) {
         tx.set(Keys.idxFilmeTitulo(nova.getTitulo()), String.valueOf(nova.getId()));
+
+        if (atual == null) {
+            tx.sadd(Keys.idxFilmeDisponivel(), String.valueOf(nova.getId()));
+        }
+
         if (atual != null && !Keys.idxFilmeTitulo(atual.getTitulo())
                 .equals(Keys.idxFilmeTitulo(nova.getTitulo()))) {
             tx.del(Keys.idxFilmeTitulo(atual.getTitulo()));
@@ -63,5 +68,6 @@ public class FilmeRepository extends BaseRepository<Filme>{
     @Override
     protected void apagarIndices(Transaction tx, Filme atual) {
         tx.del(Keys.idxFilmeTitulo(atual.getTitulo()));
+        tx.srem(Keys.idxFilmeDisponivel(), String.valueOf(atual.getId()));
     }
 }
