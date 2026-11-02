@@ -82,15 +82,24 @@ public class Filme {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, titulo, genero, duracao, valorDiario);
+    public boolean equals(Object outro) {
+        if (this == outro) {
+            return true;
+        }
+        if (!(outro instanceof Filme filme)) {
+            return false;
+        }
+        return Objects.equals(id, filme.id)
+                && Objects.equals(titulo, filme.titulo)
+                && Objects.equals(genero, filme.genero)
+                && Objects.equals(ano, filme.ano)
+                && Objects.equals(duracao, filme.duracao)
+                && Objects.equals(valorDiario, filme.valorDiario);
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
-        Filme filme = (Filme) object;
-        return Objects.equals(id, filme.id) && Objects.equals(titulo, filme.titulo) && Objects.equals(genero, filme.genero) && Objects.equals(ano, filme.ano) && Objects.equals(duracao, filme.duracao) && Objects.equals(valorDiario, filme.valorDiario);
+    public int hashCode() {
+        return Objects.hash(id, titulo, genero, ano, duracao, valorDiario);
     }
 
     @Override

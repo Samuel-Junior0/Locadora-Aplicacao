@@ -1,7 +1,8 @@
 package com.locadora.exception;
 
-public class EntidadeNaoEncontradaException extends RuntimeException {
-    public EntidadeNaoEncontradaException(String message) {
+public abstract class EntidadeNaoEncontradaException extends RuntimeException {
+
+    protected EntidadeNaoEncontradaException(String message) {
         super(message);
     }
 }

@@ -1,5 +1,7 @@
 package com.locadora.util;
 
+import com.locadora.exception.CpfInvalidoException;
+
 public final class Cpf {
 
     private Cpf() {
@@ -7,11 +9,11 @@ public final class Cpf {
 
     public static String normalizar(String cpf) {
         if (cpf == null) {
-            throw new IllegalArgumentException("CPF é obrigatório");
+            throw new CpfInvalidoException("CPF é obrigatório");
         }
         String digitos = cpf.replaceAll("\\D", "");
         if (digitos.length() != 11) {
-            throw new IllegalArgumentException("CPF deve ter 11 dígitos: " + cpf);
+            throw new CpfInvalidoException("CPF deve ter 11 dígitos: " + cpf);
         }
         return digitos;
     }

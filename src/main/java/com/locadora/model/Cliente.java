@@ -1,6 +1,6 @@
 package com.locadora.model;
 
-import com.locadora.util.Cpf;
+import com.locadora.util.ValidadorCliente;
 
 import java.util.Objects;
 
@@ -15,8 +15,8 @@ public class Cliente {
 
     public Cliente(Long id, String nome, String cpf) {
         this.id = id;
-        setNome(nome);
-        setCpf(cpf);
+        this.nome = ValidadorCliente.validarNomeCliente(nome);
+        this.cpf = ValidadorCliente.validarCpfCliente(cpf);
     }
 
     public static Cliente novo(String nome, String cpf) {
@@ -36,10 +36,7 @@ public class Cliente {
     }
 
     public void setNome(String nome) {
-        if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Nome do cliente é obrigatório");
-        }
-        this.nome = nome.trim();
+        this.nome = ValidadorCliente.validarNomeCliente(nome);
     }
 
     public String getCpf() {
@@ -47,7 +44,7 @@ public class Cliente {
     }
 
     public void setCpf(String cpf) {
-        this.cpf = Cpf.normalizar(cpf);
+        this.cpf = ValidadorCliente.validarCpfCliente(cpf);
     }
 
     @Override

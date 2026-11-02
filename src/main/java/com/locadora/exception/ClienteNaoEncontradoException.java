@@ -1,8 +1,8 @@
 package com.locadora.exception;
 
-public class ClienteNaoEncontradoException extends RuntimeException {
+public class ClienteNaoEncontradoException extends EntidadeNaoEncontradaException {
 
     public ClienteNaoEncontradoException(long id) {
-        super("Cliente " + id + " não encontrado");
+        super("Cliente não encontrado: " + id);
     }
 }
