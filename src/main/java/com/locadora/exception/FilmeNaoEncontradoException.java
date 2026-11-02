@@ -1,7 +1,7 @@
 package com.locadora.exception;
 
-public class FilmeNaoEncontradoException extends RuntimeException {
-  public FilmeNaoEncontradoException(String message) {
-    super(message);
-  }
+public class FilmeNaoEncontradoException extends EntidadeNaoEncontradaException {
+    public FilmeNaoEncontradoException(Long id) {
+        super("Filme não encontrado: " + id);
+    }
 }
