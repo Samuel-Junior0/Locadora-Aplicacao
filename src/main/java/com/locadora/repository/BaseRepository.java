@@ -156,8 +156,11 @@ public abstract class BaseRepository <T> implements Repository <T> {
             return List.of();
         }
 
-        Set<String> ids = jedis.smembers(setIdsKey);
-        if (ids.isEmpty()) {
+        return listarPorIds(jedis.smembers(setIdsKey));
+    }
+
+    protected List<T> listarPorIds(Set<String> ids) {
+        if (ids == null || ids.isEmpty()) {
             return List.of();
         }
 

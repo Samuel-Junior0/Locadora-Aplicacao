@@ -8,12 +8,31 @@ import com.locadora.util.Keys;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
+import java.util.List;
 import java.util.Objects;
 
 public class LocacaoRepository extends BaseRepository<Locacao> {
 
     public LocacaoRepository(Jedis jedis) {
         super(jedis, Locacao.class, Keys::locacao, Keys.locacoesIds(), Keys.seqLocacao());
+    }
+
+    public List<Locacao> listarAbertas() {
+        return listarPorIds(jedis.smembers(Keys.idxLocacaoAberta()));
+    }
+
+    public List<Locacao> listarPorCliente(long clienteId) {
+        return listarPorIds(jedis.smembers(Keys.idxLocacaoCliente(clienteId)));
+    }
+
+    public List<Locacao> listarPorFilme(long filmeId) {
+        return listarPorIds(jedis.smembers(Keys.idxLocacaoFilme(filmeId)));
+    }
+
+    public List<Locacao> listarDevolvidas() {
+        return listarTodos().stream()
+                .filter(locacao -> locacao.getDataDevolucao() != null)
+                .toList();
     }
 
     @Override

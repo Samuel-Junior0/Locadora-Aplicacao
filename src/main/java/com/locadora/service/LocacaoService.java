@@ -13,6 +13,7 @@ import com.locadora.repository.LocacaoRepository;
 import com.locadora.util.ValidadorLocacao;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public final class LocacaoService extends BaseService<Locacao> {
 
@@ -62,5 +63,27 @@ public final class LocacaoService extends BaseService<Locacao> {
         ValidadorLocacao.validarDevolucao(locacao);
 
         return locacaoRepository.atualizar(locacaoId, locacao);
+    }
+
+    public List<Locacao> listarAbertas() {
+        return locacaoRepository.listarAbertas();
+    }
+
+    public List<Locacao> listarPorCliente(long clienteId) {
+        return locacaoRepository.listarPorCliente(clienteId);
+    }
+
+    public List<Locacao> listarPorFilme(long filmeId) {
+        return locacaoRepository.listarPorFilme(filmeId);
+    }
+
+    public List<Locacao> listarDevolvidas() {
+        return locacaoRepository.listarDevolvidas();
+    }
+
+    @Override
+    public Locacao atualizar(long id, Locacao locacao) {
+        throw new UnsupportedOperationException(
+                "Use alugar() ou devolver() para alterar uma locação");
     }
 }
