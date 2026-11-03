@@ -1,28 +1,30 @@
 package com.locadora.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.locadora.util.ValidadorLocacao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Locacao {
 
     private Long id;
     private Long clienteId;
     private Long filmeId;
-    private int dias;
     private BigDecimal valorDiaria;
     private LocalDate dataLocacao;
     private LocalDate dataDevolucao;
 
     public Locacao() {}
 
-    public Locacao(Long id, Long clienteId, Long filmeId, int dias, BigDecimal valorDiaria, LocalDate dataLocacao, LocalDate dataDevolucao) {
+    public Locacao(Long id, Long clienteId, Long filmeId, BigDecimal valorDiaria,
+                   LocalDate dataLocacao, LocalDate dataDevolucao) {
         this.id = id;
         this.clienteId = clienteId;
         this.filmeId = filmeId;
-        this.dias = dias;
         this.valorDiaria = valorDiaria;
         this.dataLocacao = dataLocacao;
         this.dataDevolucao = dataDevolucao;
@@ -30,10 +32,8 @@ public class Locacao {
         ValidadorLocacao.validar(this);
     }
 
-    public static Locacao nova(Long clienteId, Long filmeId, int dias,
-                               BigDecimal valorDiaria) {
-
-        Locacao locacao =  new Locacao(null, clienteId, filmeId, dias, valorDiaria, LocalDate.now(), null);
+    public static Locacao nova(Long clienteId, Long filmeId, BigDecimal valorDiaria) {
+        Locacao locacao = new Locacao(null, clienteId, filmeId, valorDiaria, LocalDate.now(), null);
         ValidadorLocacao.validarNova(locacao);
         return locacao;
     }
@@ -60,14 +60,6 @@ public class Locacao {
 
     public void setFilmeId(Long filmeId) {
         this.filmeId = ValidadorLocacao.validarFilmeId(filmeId);
-    }
-
-    public int getDias() {
-        return dias;
-    }
-
-    public void setDias(int dias) {
-        this.dias = ValidadorLocacao.validarDias(dias);
     }
 
     public BigDecimal getValorDiaria() {
@@ -101,6 +93,13 @@ public class Locacao {
         this.dataDevolucao = dataDevolucao;
     }
 
+    public Long periodoEmDias() {
+        if (dataDevolucao == null) {
+            return null;
+        }
+        return Math.max(1, ChronoUnit.DAYS.between(dataLocacao, dataDevolucao));
+    }
+
     @Override
     public boolean equals(Object outro) {
         if (this == outro) {
@@ -112,7 +111,6 @@ public class Locacao {
         return Objects.equals(id, locacao.id)
                 && Objects.equals(clienteId, locacao.clienteId)
                 && Objects.equals(filmeId, locacao.filmeId)
-                && dias == locacao.dias
                 && Objects.equals(valorDiaria, locacao.valorDiaria)
                 && Objects.equals(dataLocacao, locacao.dataLocacao)
                 && Objects.equals(dataDevolucao, locacao.dataDevolucao);
@@ -120,6 +118,6 @@ public class Locacao {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, clienteId, filmeId, dias, valorDiaria, dataLocacao, dataDevolucao);
+        return Objects.hash(id, clienteId, filmeId, valorDiaria, dataLocacao, dataDevolucao);
     }
 }

@@ -30,7 +30,7 @@ public final class LocacaoService extends BaseService<Locacao> {
         this.filmeRepository = filmeRepository;
     }
 
-    public Locacao alugar(long clienteId, long filmeId, int dias) {
+    public Locacao alugar(long clienteId, long filmeId) {
         Cliente cliente = clienteRepository.buscarPorId(clienteId)
                 .orElseThrow(() -> new ClienteNaoEncontradoException(clienteId));
 
@@ -40,7 +40,6 @@ public final class LocacaoService extends BaseService<Locacao> {
         Locacao locacao = Locacao.nova(
                 cliente.getId(),
                 filme.getId(),
-                dias,
                 filme.getValorDiario()
         );
 

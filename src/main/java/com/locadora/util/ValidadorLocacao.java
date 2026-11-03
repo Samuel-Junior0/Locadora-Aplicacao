@@ -22,13 +22,6 @@ public final class ValidadorLocacao {
         return validarIdObrigatorio(filmeId, "Filme");
     }
 
-    public static int validarDias(int dias) {
-        if (dias <= 0) {
-            throw new ValorInvalidoException("Dias deve ser maior que zero");
-        }
-        return dias;
-    }
-
     public static BigDecimal validarValorDiaria(BigDecimal valorDiaria) {
         if (valorDiaria == null || valorDiaria.signum() < 0) {
             throw new ValorInvalidoException("Valor da diária inválido");
@@ -59,7 +52,6 @@ public final class ValidadorLocacao {
 
         validarClienteId(locacao.getClienteId());
         validarFilmeId(locacao.getFilmeId());
-        validarDias(locacao.getDias());
         validarValorDiaria(locacao.getValorDiaria());
         validarDatas(locacao.getDataLocacao(), locacao.getDataDevolucao());
     }

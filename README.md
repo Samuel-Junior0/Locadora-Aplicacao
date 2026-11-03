@@ -34,19 +34,44 @@ docker compose down           # para o banco, mantendo os dados
 docker compose down -v        # para e apaga os dados
 ```
 
-O `Main` executa uma demonstração do CRUD de cliente e apaga o que criou no final.
-Host e porta podem ser trocados por `GARNET_HOST` e `GARNET_PORT`.
+O `Main` abre um **menu de console** para gerenciar a aplicação:
+
+```
+===== LOCADORA =====
+1 - Clientes
+2 - Filmes
+3 - Locações
+4 - Pagamentos
+5 - Status do banco
+0 - Sair
+```
+
+Cada submenu cobre cadastro, busca, listagem, atualização e remoção (quando aplicável),
+além de alugar/devolver filmes e gerar pagamentos. Host e porta podem ser trocados por
+`GARNET_HOST` e `GARNET_PORT`.
+
+Para popular o banco com um cenário de demonstração que **fica gravado** (útil para
+inspecionar na extensão do VS Code):
+
+```bash
+./mvnw compile exec:java -Dexec.mainClass=com.locadora.app.MainPopularBanco
+```
+
+O `MainPopularBanco` cria clientes, filmes, locações e pagamentos e não remove nada
+ao final. Pode ser executado várias vezes: CPFs e títulos recebem valores únicos.
 
 ## Estrutura
 
 ```
 src/main/java/com/locadora/
-├── app/          Main (demonstração)
-├── model/        Cliente, Filme (placeholder)
-├── repository/   ClienteRepository
-├── service/      ClienteService
+├── app/          Main, MainPopularBanco, MainLocadora, MainFilme
+├── menu/         MenuPrincipal, MenuCliente, MenuFilme, MenuLocacao,
+│                 MenuPagamento, MenuStatus e MenuBase
+├── model/        Cliente, Filme, Locacao, Pagamento
+├── repository/   BaseRepository + repositórios por entidade
+├── service/      BaseService + serviços por entidade
 ├── exception/    Exceções de negócio
-└── util/         Cpf, Json, Keys, ConexaoGarnet
+└── util/         Cpf, Json, Keys, ConexaoGarnet, validadores
 ```
 
 ## Como funciona
@@ -58,6 +83,27 @@ separadas (`idx:cliente:cpf:{cpf}` e o conjunto `clientes:ids`). O `ClienteRepos
 
 ## Funcionalidades
 
-- **Cliente** (implementado): cadastrar, buscar por id, buscar por CPF, atualizar, remover
-  e listar. CPF único, normalizado para 11 dígitos.
-- **Filme**, **Locação** e **Pagamento**: próximos passos.
+- **Cliente**: cadastrar, buscar por id, buscar por CPF, atualizar, remover e listar.
+  CPF único, normalizado para 11 dígitos.
+- **Filme**: cadastrar, buscar por id/título, atualizar, remover e listar. Título único
+  e controle de disponibilidade.
+- **Locação**: alugar, devolver, buscar por id, listar abertas/devolvidas e por
+  cliente/filme.
+- **Pagamento**: gerar para locação devolvida, buscar por id/locação e listar.
+- **Status**: contadores de cada entidade e total de chaves no Garnet.
+
+## Limpeza dos dados
+
+```text
+FLUSHDB
+SAVE
+```
+
+O `SAVE` é necessário: apenas `FLUSHDB` é perdido no restart porque o AOF antigo é
+reprocessado na inicialização.
+
+Para um reset completo (apaga AOF, checkpoint e volume):
+
+```bash
+docker compose down -v && docker compose up -d --wait
+```

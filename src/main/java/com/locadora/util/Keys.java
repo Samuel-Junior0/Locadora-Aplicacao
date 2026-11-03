@@ -66,4 +66,20 @@ public final class Keys {
     public static String idxLocacaoAberta() {
         return "idx:locacao:aberta";
     }
+
+    public static String pagamento(long id) {
+        return "pagamento:" + id;
+    }
+
+    public static String seqPagamento() {
+        return "seq:pagamento";
+    }
+
+    public static String pagamentosIds() {
+        return "pagamentos:ids";
+    }
+
+    public static String idxPagamentoLocacao(long locacaoId) {
+        return "idx:pagamento:locacao:" + locacaoId;
+    }
 }
